@@ -24,7 +24,8 @@ from .config import (
     api_hash,
     public_url,
     start_message,
-    group_chat_message
+    group_chat_message,
+    expiry_duration
 )
 from .util import pack_id, get_file_name
 
@@ -43,6 +44,9 @@ async def handle_message(evt: events.NewMessage.Event) -> None:
         await evt.reply(start_message)
         return
     url = public_url / str(pack_id(evt)) / get_file_name(evt)
-    await evt.reply(f"Link to download file: [{url}]({url})")
+    text = f"Link to download file: [{url}]({url})."
+    if expiry_duration:
+        text += f"\n\nLink will expire in {expiry_duration} day(s)."
+    await evt.reply(text)
     log.info(f"Replied with link for {evt.id} to {evt.from_id} in {evt.chat_id}")
     log.debug(f"Link to {evt.id} in {evt.chat_id}: {url}")

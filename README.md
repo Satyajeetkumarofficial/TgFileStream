@@ -15,11 +15,12 @@ should include the protocol, e.g. `https://example.com`.
 * `PORT` (defaults to `8080`) - The port to listen at.
 * `HOST` (defaults to `localhost`) - The host to listen at.
 * `PUBLIC_URL` (defaults to `http://localhost:8080`) - The prefix for links that the bot gives.
-* `TRUST_FORWARD_HEADERS` (defaults to false) - Whether or not to trust X-Forwarded-For headers when logging requests.
-* `DEBUG` (defaults to false) - Whether or not to enable extra prints.
+* `TRUST_FORWARD_HEADERS` (defaults to False) - Whether or not to trust X-Forwarded-For headers when logging requests.
+* `DEBUG` (defaults to False) - Whether or not to enable extra prints.
 * `LOG_CONFIG` - Path to a Python basic log config. Overrides `DEBUG`.
-* `REQUEST_LIMIT` (default 5) - The maximum number of requests a single IP can have active at a time.
-* `CONNECTION_LIMIT` (default 20) - The maximum number of connections to a single Telegram datacenter.
+* `REQUEST_LIMIT` (defaults to 5) - The maximum number of requests a single IP can have active at a time.
+* `CONNECTION_LIMIT` (defaults to 20) - The maximum number of connections to a single Telegram datacenter.
+* `LINK_EXPIRY_DURATION` (defaults to  False) - Number of days in which the link will expire.
 * `TG_START_MESG` - The message that should be shown in Telegram chat, in case of non-media message.
 * `TG_G_C_MESG` - The message that should be shown in a Telegram Group chat.
 * `TG_SESSION_NAME` (defaults to `tgfilestream`) - The name of the Telethon session file to use.

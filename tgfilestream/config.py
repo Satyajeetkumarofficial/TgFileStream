@@ -57,6 +57,7 @@ except ValueError:
     print("Please make sure the CONNECTION_LIMIT environment variable is an integer")
     sys.exit(1)
 
+expiry_duration = int(os.environ.get("LINK_EXPIRY_DURATION", "0"))
 
 start_message = os.environ.get("TG_START_MESG", "Send an image or file to get a link to download it")
 group_chat_message = os.environ.get("TG_G_C_MESG", "Sorry. But, I only work in private.")

@@ -16,12 +16,13 @@
 from typing import Dict, cast
 from collections import defaultdict
 import logging
+import datetime
 
 from telethon.tl.custom import Message
 from aiohttp import web
 
 from .util import unpack_id, get_file_name, get_requester_ip
-from .config import request_limit
+from .config import request_limit, expiry_duration
 from .telegram import client, transfer
 
 log = logging.getLogger(__name__)
@@ -59,8 +60,15 @@ async def handle_request(req: web.Request, head: bool = False) -> web.Response:
         return web.Response(status=404, text="404: Not Found")
 
     message = cast(Message, await client.get_messages(entity=peer, ids=msg_id))
-    if not message or not message.file or get_file_name(message) != file_name:
+    
+    if not message or not message.file: # If message is deleted, you can no longer download.
+        return web.Response(status=410, text="410: Gone. Access to the target resource is no longer available!")
+    
+    if get_file_name(message) != file_name:
         return web.Response(status=404, text="404: Not Found")
+    
+    if expiry_duration and (datetime.datetime.now(datetime.timezone.utc) - message.date).days > expiry_duration:
+        return web.Response(status=410, text="410: Gone. Access to the target resource is no longer available!")
 
     size = message.file.size
     try:
