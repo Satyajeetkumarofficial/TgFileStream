@@ -10,8 +10,8 @@ A reverse proxy is recommended to add TLS. When using a reverse proxy, keep
 should include the protocol, e.g. `https://example.com`.
 
 ### Environment variables
-* `TG_API_ID` (required) - Your Telegram API ID.
-* `TG_API_HASH` (required) - Your Telegram API hash.
+* `TG_API_ID` (required) - Your Telegram API ID. Get From [my.telegram.org/apps](https://my.telegram.org/apps)
+* `TG_API_HASH` (required) - Your Telegram API hash. Get From [my.telegram.org/apps](https://my.telegram.org/apps)
 * `PORT` (defaults to `8080`) - The port to listen at.
 * `HOST` (defaults to `localhost`) - The host to listen at.
 * `PUBLIC_URL` (defaults to `http://localhost:8080`) - The prefix for links that the bot gives.
@@ -23,4 +23,4 @@ should include the protocol, e.g. `https://example.com`.
 * `TG_START_MESG` - The message that should be shown in Telegram chat, in case of non-media message.
 * `TG_G_C_MESG` - The message that should be shown in a Telegram Group chat.
 * `TG_SESSION_NAME` (defaults to `tgfilestream`) - The name of the Telethon session file to use.
-* `TG_BOT_FATHER_TOKEN` (defaults to None) - This option is mutually exclusive to `TG_SESSION_NAME`, and if set, the client will login as a bot, instead of an user.
+* `TG_BOT_FATHER_TOKEN` (defaults to None) - This option is mutually exclusive to `TG_SESSION_NAME`, and if set, the client will login as a bot, instead of an user. From [@BotFather](https://telegram.dog/BotFather)
