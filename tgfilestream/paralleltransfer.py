@@ -160,10 +160,10 @@ class ParallelTransferrer:
                             last_part_cut: int) -> AsyncGenerator[bytes, None]:
         log = self.log
         try:
-            part = first_part
             dcm = self.dc_managers[dc_id]
             async with dcm.get_connection() as conn:
                 log = conn.log
+                part = first_part
                 while part <= last_part:
                     result = await conn.sender.send(request)
                     request.offset += part_size
