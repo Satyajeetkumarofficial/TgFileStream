@@ -180,7 +180,8 @@ class ParallelTransferrer:
             log.debug("Parallel download interrupted")
             raise
         except Exception:
-            log.debug("Parallel download errored", exc_info=True)
+            log.error("Parallel download errored", exc_info=True)
+            raise
 
     def download(self, file: TypeLocation, file_size: int, offset: int, limit: int
                  ) -> AsyncGenerator[bytes, None]:
