@@ -1,4 +1,4 @@
-aiohttp
-yarl
-telethon
-cryptg
+aiohttp>=3.9,<4
+yarl>=1.9,<2
+telethon>=1.40,<2
+cryptg>=0.4

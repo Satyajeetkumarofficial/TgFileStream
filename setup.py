@@ -22,14 +22,14 @@ setuptools.setup(
     packages=setuptools.find_packages(),
 
     install_requires=[
-        "aiohttp>=3",
-        "telethon>=1.10",
-        "yarl>=1",
+        "aiohttp>=3.9,<4",
+        "telethon>=1.40,<2",
+        "yarl>=1.9,<2",
     ],
     extras_require={
-        "fast": ["cryptg>=0.2"],
+        "fast": ["cryptg>=0.4"],
     },
-    python_requires="~=3.7",
+    python_requires=">=3.9",
 
     classifiers=[
         "Development Status :: 4 - Beta",
@@ -37,11 +37,13 @@ setuptools.setup(
         "Framework :: AsyncIO",
         "Programming Language :: Python",
         "Programming Language :: Python :: 3",
-        "Programming Language :: Python :: 3.7",
-        "Programming Language :: Python :: 3.8",
+        "Programming Language :: Python :: 3.9",
+        "Programming Language :: Python :: 3.10",
+        "Programming Language :: Python :: 3.11",
+        "Programming Language :: Python :: 3.12",
     ],
     entry_points="""
         [console_scripts]
-        tgfilestream=tgfilestream.__main__:main
+        tgfilestream=tgfilestream.__main__:main_sync
     """,
 )
