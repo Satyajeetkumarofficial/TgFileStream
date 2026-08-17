@@ -15,43 +15,59 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 from typing import Tuple, Union
 
-from telethon import events
+from telethon import events, utils
 from telethon.tl.custom import Message
-from telethon.tl.types import TypeInputPeer, InputPeerChannel, InputPeerChat, InputPeerUser
+from telethon.tl.types import (
+    TypeInputPeer, InputPeerChannel, InputPeerChat, InputPeerUser,
+    PeerChat, PeerChannel,
+)
 from aiohttp import web
 
 from .config import trust_headers
 
-chat_id_bits = 48
+# Telegram user/chat/channel IDs can now use up to ~52 significant bits (they
+# used to comfortably fit in 32 bits when this project was first written), so
+# the packed ID needs enough room for the real (unmarked) chat id plus a
+# generously sized message id.
+chat_id_bits = 64
 msg_id_bits = 32
 chat_id_mask = (1 << chat_id_bits) - 1
 msg_id_mask = (1 << msg_id_bits) - 1
 
-group_bit = 0b01
-channel_bit = 0b10
-chat_id_offset = 2
-msg_id_offset = chat_id_bits + chat_id_offset
+type_user = 0b00
+type_chat = 0b01
+type_channel = 0b10
+type_bits = 2
+type_mask = (1 << type_bits) - 1
+
+chat_id_offset = type_bits
+msg_id_offset = chat_id_offset + chat_id_bits
 
 
 def pack_id(evt: events.NewMessage.Event) -> int:
-    file_id = 0
-    if evt.is_group:
-        file_id |= group_bit
-    if evt.is_channel:
-        file_id |= channel_bit
-    file_id |= evt.chat_id << chat_id_offset
-    file_id |= evt.id << msg_id_offset
+    # resolve_id turns the "marked" (sign-prefixed) chat id telethon exposes
+    # back into the real, always-positive id used by the raw MTProto types.
+    real_id, peer_type = utils.resolve_id(evt.chat_id)
+    if peer_type is PeerChannel:
+        kind = type_channel
+    elif peer_type is PeerChat:
+        kind = type_chat
+    else:
+        kind = type_user
+
+    file_id = kind
+    file_id |= (real_id & chat_id_mask) << chat_id_offset
+    file_id |= (evt.id & msg_id_mask) << msg_id_offset
     return file_id
 
 
 def unpack_id(file_id: int) -> Tuple[TypeInputPeer, int]:
-    is_group = file_id & group_bit
-    is_channel = file_id & channel_bit
-    chat_id = file_id >> chat_id_offset & chat_id_mask
-    msg_id = file_id >> msg_id_offset & msg_id_mask
-    if is_channel:
+    kind = file_id & type_mask
+    chat_id = (file_id >> chat_id_offset) & chat_id_mask
+    msg_id = (file_id >> msg_id_offset) & msg_id_mask
+    if kind == type_channel:
         peer = InputPeerChannel(channel_id=chat_id, access_hash=0)
-    elif is_group:
+    elif kind == type_chat:
         peer = InputPeerChat(chat_id=chat_id)
     else:
         peer = InputPeerUser(user_id=chat_id, access_hash=0)

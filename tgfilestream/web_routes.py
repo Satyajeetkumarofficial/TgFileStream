@@ -34,7 +34,7 @@ async def handle_head_request(req: web.Request) -> web.Response:
     return await handle_request(req, head=True)
 
 
-@routes.get(r"/{id:\d+}/{name}", allow_head=False)
+@routes.get(r"/{id:\d+}/{name}")
 async def handle_get_request(req: web.Request) -> web.Response:
     return await handle_request(req, head=False)
 
@@ -49,6 +49,14 @@ def increment_counter(ip: str) -> None:
 
 def decrement_counter(ip: str) -> None:
     ongoing_requests[ip] -= 1
+
+
+async def _counted_download(ip: str, *args, **kwargs):
+    try:
+        async for chunk in transfer.download(*args, **kwargs):
+            yield chunk
+    finally:
+        decrement_counter(ip)
 
 
 async def handle_request(req: web.Request, head: bool = False) -> web.Response:
@@ -75,14 +83,15 @@ async def handle_request(req: web.Request, head: bool = False) -> web.Response:
         ip = get_requester_ip(req)
         if not allow_request(ip):
             return web.Response(status=429)
+        increment_counter(ip)
         log.info(f"Serving file in {message.id} (chat {message.chat_id}) to {ip}; Range: {offset} - {limit}")
-        body = transfer.download(message.media, file_size=size, offset=offset, limit=limit)
+        body = _counted_download(ip, message.media, file_size=size, offset=offset, limit=limit)
     else:
         body = None
     return web.Response(status=206 if (limit-offset != size) else 200,
                         body=body,
                         headers={
-                            "Content-Type": message.file.mime_type,
+                            "Content-Type": message.file.mime_type or "application/octet-stream",
                             "Content-Range": f"bytes {offset}-{limit}/{size}",
                             "Content-Length": str(limit - offset),
                             "Content-Disposition": f'attachment; filename="{file_name}"',

@@ -28,8 +28,6 @@ server = web.Application()
 server.add_routes(routes)
 runner = web.AppRunner(server)
 
-loop = asyncio.get_event_loop()
-
 
 async def start() -> None:
     await client.start(bot_token=tg_bot_token)
@@ -47,26 +45,39 @@ async def start() -> None:
     await runner.setup()
     await web.TCPSite(runner, host, port).start()
 
+    log.info("Initialization complete")
+    log.debug(f"Listening at http://{host}:{port}")
+    log.debug(f"Public URL prefix is {public_url}")
+
 
 async def stop() -> None:
     await runner.cleanup()
     await client.disconnect()
 
 
-try:
-    loop.run_until_complete(start())
-except Exception:
-    log.fatal("Failed to initialize", exc_info=True)
-    sys.exit(2)
+async def main() -> None:
+    try:
+        await start()
+    except Exception:
+        log.fatal("Failed to initialize", exc_info=True)
+        sys.exit(2)
 
-log.info("Initialization complete")
-log.debug(f"Listening at http://{host}:{port}")
-log.debug(f"Public URL prefix is {public_url}")
+    try:
+        await client.run_until_disconnected()
+    except Exception:
+        log.fatal("Fatal error in event loop", exc_info=True)
+        sys.exit(3)
+    finally:
+        await stop()
 
-try:
-    loop.run_forever()
-except KeyboardInterrupt:
-    loop.run_until_complete(stop())
-except Exception:
-    log.fatal("Fatal error in event loop", exc_info=True)
-    sys.exit(3)
+
+def main_sync() -> None:
+    """Console-script entry point (see setup.py)."""
+    try:
+        asyncio.run(main())
+    except KeyboardInterrupt:
+        log.info("Interrupted, shutting down")
+
+
+if __name__ == "__main__":
+    main_sync()

@@ -36,7 +36,7 @@ except (KeyError, ValueError):
 
 trust_headers = bool(os.environ.get("TRUST_FORWARD_HEADERS"))
 host = os.environ.get("HOST", "0.0.0.0")
-public_url = URL(os.environ.get("PUBLIC_URL", f"http://{host}:{port}"))
+public_url = URL(os.environ.get("PUBLIC_URL", f"http://localhost:{port}"))
 
 session_name = os.environ.get("TG_SESSION_NAME", "tgfilestream")
 
